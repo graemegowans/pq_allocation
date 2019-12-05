@@ -1,0 +1,14 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+allocated/
+data/
+to_be_allocated/
+credentials.json
+contact_info.csv
+scripts/archived/
+scripts/developing/
+guides/
+
+
