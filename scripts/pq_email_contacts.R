@@ -36,6 +36,13 @@ pq_dated <- "2019_11_28"
 pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
 
 #***************************************
+#get email addresses####
+#***************************************
+
+emails <- read_csv("email_addresses.csv")
+phi_pq <- filter(emails, contact == "phi_pq")
+
+#***************************************
 # email intro text####
 #***************************************
 
@@ -56,7 +63,7 @@ email_intro <- glue(
 # load contact info/process####
 #***************************************
 
-#read contact info
+#read contact info for topic areas
 contact <- read_csv("contact_info.csv",
                     skip_empty_rows = TRUE,
                     trim_ws = TRUE)
@@ -168,7 +175,7 @@ for (i in topics) {
   #outMail[["To"]] = "your.name@nhs.net"
   outMail[["To"]] = send_to
   
-  outMail[["SentOnBehalfOfName"]] = "nss.phi-parliamentaryquestions@nhs.net"
+  outMail[["SentOnBehalfOfName"]] = phi_pq$email
   outMail[["subject"]] = subject
   outMail[["htmlbody"]] = msg_body
 

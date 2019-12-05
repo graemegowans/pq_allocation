@@ -23,7 +23,7 @@ library(glue)
 #*******************************
 #this takes the archive already saved and gets IDs
 #takes it from network
-#this path won't work on desktop, but runs through server
+#this path won't work on desktop, but it runs through server
 archive <- readRDS(glue("/conf/linkage/output/IR2019_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))
 archive <- select(archive, unique_id)
 

@@ -26,6 +26,12 @@ library(lubridate)
 #from network
 source("/conf/linkage/output/IR2019_PQ/pq_allocation/scripts/pq_scrape.R")
 
+#get email addresses
+#saved in new file so addresses aren't shared
+emails <- read_csv("/conf/linkage/output/IR2019_PQ/pq_allocation/email_addresses.csv")
+gmail_acct <- filter(emails, contact == "gmail_account")
+stats_gov <- filter(emails, contact == "stats_gov")
+
 #************************************
 #format message####
 #can delete this once file version
@@ -71,20 +77,16 @@ msg <- paste0("<h3>Flagged Questions</h3>",
 
 #authorize
 #gm_auth_configure(path = "credentials.json")
-gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
-gm_auth(email = "emailtestscheduler@gmail.com")
-
-#generate email
-test_email <-
-  gm_mime() %>%
-  gm_to(c("nss.nssstatsgov@nhs.net",
-          "graeme.gowans@nhs.net")) %>%
-  gm_from("emailtestscheduler@gmail.com") %>%
-  gm_subject(paste(Sys.time(),"flagged parliamentary questions")) %>%
+  gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
+  gm_auth(email = gmail_acct$email)
+  
+  #generate email
+  test_email <-
+    gm_mime() %>%
+    gm_to(stats_gov$email) %>%
+    gm_from(gmail_acct$email) %>%
+    gm_subject(paste(Sys.time(),"flagged parliamentary questions")) %>%
   gm_html_body(msg) #add html to email
-
-# Verify it looks correct
-#gm_create_draft(test_email)
 
 #send email
 gm_send_message(test_email)
@@ -148,15 +150,13 @@ if(dim(new_pq)[1] > 0){
   #authorize
   #gm_auth_configure(path = "credentials.json")
   gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
-  gm_auth(email = "emailtestscheduler@gmail.com")
+  gm_auth(email = gmail_acct$email)
   
   #generate email
   test_email <-
     gm_mime() %>%
-    gm_to(c(
-      "nss.nssstatsgov@nhs.net",
-      "graeme.gowans@nhs.net")) %>%
-    gm_from("emailtestscheduler@gmail.com") %>%
+    gm_to(stats_gov$email) %>%
+    gm_from(gmail_acct$email) %>%
     gm_subject(glue("{Sys.time()} - new PQs added")) %>%
     gm_html_body(msg)
   
