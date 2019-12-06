@@ -74,7 +74,27 @@ It might be useful to keep a running list of where we allocate questions, rather
 
 You can see how many are assigned per area:
 
-![](pq_allocation_process_files/figure-markdown_github/unnamed-chunk-2-1.png)
+``` r
+library(dplyr)
+library(forcats)
+library(ggplot2)
+library(glue)
+
+#get data
+pq <- readr::read_csv("path_to_pqs.csv")
+
+#number per area
+pq %>% 
+count(topic_area) %>% 
+mutate(topic_area = fct_reorder(topic_area, n, .desc = FALSE)) %>% 
+ggplot(aes(topic_area, n)) +
+  geom_col(color = "black", fill = "#e7298a") +
+  coord_flip() +
+  xlab("topic area") +
+  ylab("PQs assigned") +
+  ggtitle(glue::glue("Number of PQ assigned per area at: {Sys.Date()}")) +
+  theme_bw()
+```
 
 ### setting up cron jobs
 
