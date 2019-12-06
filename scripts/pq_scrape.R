@@ -1,6 +1,6 @@
 #************************************
 #pq_scrape.R
-#written by Graeme Nov 2011
+#written by Graeme Nov 2019
 #reads data from PQ website
 #looks for new questions
 #checks for flags
@@ -17,6 +17,7 @@ library(tidyverse)
 library(janitor)
 library(lubridate)
 library(glue)
+library(jsonlite)
 
 #*******************************
 #read flagged/archive
@@ -31,16 +32,16 @@ archive <- select(archive, unique_id)
 #scrape PQ website####
 #************************************
 
-#get current year website
+#get current year questions
 pq_urls <- paste0("https://data.parliament.scot/api/motionsquestionsanswersquestions?year=", year(now()))
 
 #get current PQs
-pqs <- dplyr::as_tibble(jsonlite::fromJSON(txt=url(pq_urls[length(pq_urls)]), simplifyDataFrame = TRUE))
+pqs <- as_tibble(fromJSON(txt = url(pq_urls), simplifyDataFrame = TRUE))
 pqs <- clean_names(pqs)
 
 #get MSPs
 msp_url <- "https://data.parliament.scot/api/members/json"
-msp <- dplyr::as_tibble(jsonlite::fromJSON(txt=url(msp_url[length(msp_url)]), simplifyDataFrame = TRUE))
+msp <- as_tibble(fromJSON(txt = url(msp_url), simplifyDataFrame = TRUE))
 msp <- clean_names(msp)
 
 #tidy up
@@ -53,7 +54,7 @@ msp <- msp %>%
 
 #get constituency
 constituency_url <- "https://data.parliament.scot/api/constituencies/json"
-constituency <- dplyr::as_tibble(jsonlite::fromJSON(txt=url(constituency_url), simplifyDataFrame = TRUE))
+constituency <- as_tibble(fromJSON(txt = url(constituency_url), simplifyDataFrame = TRUE))
 constituency <- clean_names(constituency)
 
 constituency <- constituency %>%
@@ -62,7 +63,7 @@ constituency <- constituency %>%
 
 #get region
 region_url <- "https://data.parliament.scot/api/regions/json"
-region <- dplyr::as_tibble(jsonlite::fromJSON(txt=url(region_url), simplifyDataFrame = TRUE))
+region <- as_tibble(fromJSON(txt = url(region_url), simplifyDataFrame = TRUE))
 region <- clean_names(region)
 
 region <- region %>%
@@ -71,7 +72,7 @@ region <- region %>%
 
 #event ID
 event_subtypes_url <- "https://data.parliament.scot/api/motionsquestionsanswerseventsubtypes/json"
-event_subtypes <- dplyr::as_tibble(jsonlite::fromJSON(txt=url(event_subtypes_url), simplifyDataFrame = TRUE))
+event_subtypes <- as_tibble(fromJSON(txt = url(event_subtypes_url), simplifyDataFrame = TRUE))
 event_subtypes <- clean_names(event_subtypes)
 
 #clean up
@@ -127,9 +128,6 @@ hps_keywords <- tolower(
 
 flag_strings <- c(flag_strings, hps_keywords)
 
-#alphabetical order
-flag_strings <- sort(flag_strings)
-
 #*******************************
 #format columns as dates
 #*******************************
@@ -166,7 +164,6 @@ new_pq$notes <- ""
 new_pq <- new_pq %>% 
           mutate(item_text = str_squish(item_text))
 
-
 #*******************************
 #add suggested contact team
 #*******************************
@@ -175,32 +172,22 @@ new_pq <- new_pq %>%
 
 #will still go to mailbox for review
 
-
 #*******************************
 #save log of new questions
 #*******************************
 
-#define save paths
-path_on_server <- "pq_auto_emails/data/new_pq/"
-path_on_drive <- "/conf/linkage/output/IR2019_PQ/pq_allocation/to_be_allocated/"
-
-#get todays date
+#generate save name
 date_to_use <- format(now(), "%Y_%m_%d")
-
-#generate save name for files
 save_name <- glue("{date_to_use}_new_pqs.csv")
 
-#if new PQs then save as csv to server
-#useful as a backup
+#if new PQs then save as csv to server/drive
 if (dim(new_pq)[1] > 0) {
-write_csv(new_pq, 
-          path = glue("{path_on_server}{save_name}"))
-}
 
-#save to drive as well for allocation
-if (dim(new_pq)[1] > 0) {
-  write_csv(new_pq, 
-            path = glue("{path_on_drive}{save_name}"))
+write_csv(new_pq, 
+          path = glue("pq_auto_emails/data/new_pq/{save_name}"))
+  
+write_csv(new_pq, 
+          path = glue("/conf/linkage/output/IR2019_PQ/pq_allocation/to_be_allocated/{save_name}"))
 }
 
 #*******************************
@@ -211,6 +198,3 @@ saveRDS(df, file = glue("pq_auto_emails/data/pq_archive_{year(now())}.RDS"))
 
 #save copy to drive
 saveRDS(df, file = glue("/conf/linkage/output/IR2019_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))
-
-
-
