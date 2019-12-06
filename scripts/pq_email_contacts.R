@@ -30,10 +30,10 @@ library(tidylog)
 #***************************************
 
 #format usually YYYY_MM_DD_new_pqs_allocated.csv
-pq_dated <- "2019_11_28"
+pq_dated <- "2019_12_05"
 
 #read allocated files from network
-pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
+pq2 <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
 
 #***************************************
 #get email addresses####

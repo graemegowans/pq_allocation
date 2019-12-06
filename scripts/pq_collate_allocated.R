@@ -69,8 +69,9 @@ pq %>%
 count(topic_area) %>% 
 mutate(topic_area = fct_reorder(topic_area, n, .desc = FALSE)) %>% 
 ggplot(aes(topic_area, n)) +
-  geom_col(aes(fill = topic_area),color = "black") +
-  scale_fill_brewer(palette = "Dark2") +
+  #geom_col(color = "black", fill = "#e7298a") +
+  geom_col(aes(fill = n),color = "black") +
+  scale_fill_gradientn(colours = brewer.pal(9, "Blues")) +
   coord_flip() +
   xlab("topic area") +
   ylab("PQs assigned") +

@@ -2,14 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+*.csv
 allocated/
 data/
 to_be_allocated/
 credentials.json
-contact_info.csv
 scripts/archived/
 scripts/developing/
-guides/
-email_addresses.csv
-
-
+guides/pq_allocation.docx
+guides/pq_allocation_process_files
