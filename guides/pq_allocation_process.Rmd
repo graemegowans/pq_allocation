@@ -81,13 +81,11 @@ It might be useful to keep a running list of where we allocate questions, rather
 You can see how many are assigned per area:
 
 ```{r eval = FALSE}
-library(dplyr)
-library(forcats)
-library(ggplot2)
+library(tidyverse)
 library(glue)
 
 #get data
-pq <- readr::read_csv("path_to_pqs.csv")
+pq <- read_csv("path_to_pqs.csv")
 
 #number per area
 pq %>% 
@@ -98,7 +96,7 @@ ggplot(aes(topic_area, n)) +
   coord_flip() +
   xlab("topic area") +
   ylab("PQs assigned") +
-  ggtitle(glue::glue("Number of PQ assigned per area at: {Sys.Date()}")) +
+  ggtitle(glue("Number of PQ assigned per area at: {Sys.Date()}")) +
   theme_bw()
 ```
 
