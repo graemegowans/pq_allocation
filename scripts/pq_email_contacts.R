@@ -30,17 +30,18 @@ library(tidylog)
 #***************************************
 
 #format usually YYYY_MM_DD_new_pqs_allocated.csv
-pq_dated <- "2019_12_05"
+pq_dated <- "2019_12_10"
 
 #read allocated files from network
-pq2 <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
+pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
 
 #***************************************
 #get email addresses####
 #***************************************
-
 emails <- read_csv("email_addresses.csv")
-phi_pq <- filter(emails, contact == "phi_pq")
+phi_pq <- filter(emails, contact == "phi_pq") %>% select(info) %>% paste0()
+sg <- filter(emails, contact == "sg") %>% select(info) %>% paste0()
+sg_phone <- filter(emails, contact == "sg_phone") %>% select(info) %>% paste0()
 
 #***************************************
 # email intro text####
@@ -49,14 +50,24 @@ phi_pq <- filter(emails, contact == "phi_pq")
 #this will be added to the top of the email
 email_intro <- glue(
   "Dear all,<br><br>",
-  "You have been allocated the following PQs today to answer.",
+  "Please note the following Parliamentary Questions for the attention of your service area.",
   " Please read the instructions below and get in touch with your policy contact to agree a deadline.<br><br>",
   "<strong>Instructions:</strong><br><br>",
-  "<strong>For Information</strong> - This indicates that the question is highlighted as of interest to your service area. There is no current expectation of formal input to be provided by you to the Scottish Government's work on their answer to the question. However, you should be prepared in case a SG policy contact decides to make contact with you to help them with some background information.<br><br>",
-  "<strong>For Review</strong> - This indicates that the question requires you to consider taking action. You need to consider what information and input you could give to the external Scottish Government's work on an answer. There is an expectation that you make contact with the SG to agree a deadline, if relevant support is required.<br><br>",
+  "<strong>For Information</strong> - This indicates that the question is highlighted as of interest",
+  " to your service area. There is no current expectation of formal input to be provided by you to the Scottish",
+  " Government's work on their answer to the question. However, you should be prepared in case a SG policy contact",
+  " decides to make contact with you to help them with some background information.<br><br>",
+  "<strong>For Review</strong> - This indicates that the question requires you to consider taking action.",
+  " You need to consider what information and input you could give to the external Scottish Government's",
+  " work on an answer. There is an expectation that you make contact with the SG to agree a deadline",
+  " if relevant support is required.<br><br>",
   "<strong>Policy contacts at the Scottish Government: </strong>",
-  "The Executive Team Programme Hub within the Scottish Government handles PQ allocations. The number to use to check if support is needed on a Parliamentary Question in the Scottish Government is now: 0131 244 4347.  If this number is busy, you should use the secondary number 0131 244 0144 or email ETFMQPQ@scotland.gsi.gov.uk<br><br>",
-  "<strong>Expected answer dates:</strong> the dates included below show the deadline for the Scottish Government's answer to appear <em>in Parliament</em>. <strong>Your deadline</strong>, therefore, for any support will be ahead of that."
+  "The Executive Team Programme Hub within the Scottish Government handles PQ allocations.",
+  " The number to use to check if support is needed on a Parliamentary Question in the Scottish",
+  " Government is {sg_phone} or email {sg}<br><br>",
+  "<strong>Expected answer dates:</strong> the dates included below show the deadline for the Scottish",
+  " Government's answer to appear <em>in Parliament</em>. <strong>Your deadline</strong>, therefore,",
+  " for any support will be ahead of that."
 )
 
 #***************************************
@@ -96,20 +107,34 @@ pq <- pq %>% arrange(topic_area, desc(action))
 
 #clean up topic area in case entered incorrectly
 #make lower case, replace spaces with underscore, remove whitespace
+#remove question marks for any
 pq <- pq %>% 
       mutate(topic_area = str_to_lower(topic_area),
              topic_area = str_replace_all(topic_area, pattern = " ","_"),
+             topic_area = str_replace_all(topic_area, pattern = "\\?",""),
              topic_area = str_squish(topic_area))
 
-#clean up encoding problems
+#***************************************
+#optional! clean up of encoding####
+#***************************************
+
+#sometimes there are encoding problems between server/laptops
 #server encodes as UTF-8, windows uses Latin1
+#usually only a problem with £ symbol
+
+#to check encoding for each question:
+pq %>% mutate(encd = Encoding(item_text)) %>% select(event_id,encd, item_text)
+
+#you can run iconv() to convert, but sometimes will make an NA
+#but this will be reported by tidylog
 pq <- pq %>% mutate(item_text = iconv(item_text, to = "Latin1", from = "UTF-8"))
 
-#run this to check encoding - all should be "unknown"
-#unknown means uses system default, find by calling Sys.getlocale("LC_CTYPE")
-#if any are UTF-8 you might get weird encoding in the email
-#check that all item text is ok
-pq %>% mutate(encd = Encoding(item_text)) %>% select(event_id,encd, item_text)
+#you can also delete weird characters in the csv file directly
+#unicode characters present in R (e.g. <U+00A3>) are encoded ok in emails
+
+#***************************************
+#generate message####
+#***************************************
 
 #generate message per question
 pq <- pq %>%
@@ -172,10 +197,10 @@ for (i in topics) {
   #*************************************
   
   #configure email parameters
-  #outMail[["To"]] = "your.name@nhs.net"
-  outMail[["To"]] = send_to
+  outMail[["To"]] = "your.name@nhs.net"
+  #outMail[["To"]] = send_to
   
-  outMail[["SentOnBehalfOfName"]] = phi_pq$email
+  outMail[["SentOnBehalfOfName"]] = phi_pq$info
   outMail[["subject"]] = subject
   outMail[["htmlbody"]] = msg_body
 

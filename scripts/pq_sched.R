@@ -78,13 +78,13 @@ msg <- paste0("<h3>Flagged Questions</h3>",
 #authorize
 #gm_auth_configure(path = "credentials.json")
   gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
-  gm_auth(email = gmail_acct$email)
+  gm_auth(email = gmail_acct$info)
   
   #generate email
   test_email <-
     gm_mime() %>%
-    gm_to(stats_gov$email) %>%
-    gm_from(gmail_acct$email) %>%
+    gm_to(stats_gov$info) %>%
+    gm_from(gmail_acct$info) %>%
     gm_subject(paste(Sys.time(),"flagged parliamentary questions")) %>%
   gm_html_body(msg) #add html to email
 
@@ -150,13 +150,13 @@ if(dim(new_pq)[1] > 0){
   #authorize
   #gm_auth_configure(path = "credentials.json")
   gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
-  gm_auth(email = gmail_acct$email)
+  gm_auth(email = gmail_acct$info)
   
   #generate email
   test_email <-
     gm_mime() %>%
-    gm_to(stats_gov$email) %>%
-    gm_from(gmail_acct$email) %>%
+    gm_to(stats_gov$info) %>%
+    gm_from(gmail_acct$info) %>%
     gm_subject(glue("{Sys.time()} - new PQs added")) %>%
     gm_html_body(msg)
   
