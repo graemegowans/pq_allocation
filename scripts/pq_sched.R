@@ -1,6 +1,6 @@
 #************************************
 #pq_sched.R
-#written by Graeme Nov 2011
+#written by Graeme Nov 2019
 #calls pq_scrape.R to look for new questions
 
 #run by cronR package on RStudio Server

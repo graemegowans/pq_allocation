@@ -30,7 +30,7 @@ library(tidylog)
 #***************************************
 
 #format usually YYYY_MM_DD_new_pqs_allocated.csv
-pq_dated <- "2019_12_10"
+pq_dated <- "2019_12_12"
 
 #read allocated files from network
 pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
@@ -197,10 +197,10 @@ for (i in topics) {
   #*************************************
   
   #configure email parameters
-  outMail[["To"]] = "your.name@nhs.net"
-  #outMail[["To"]] = send_to
+  #outMail[["To"]] = "your.name@nhs.net"
+  outMail[["To"]] = send_to
   
-  outMail[["SentOnBehalfOfName"]] = phi_pq$info
+  outMail[["SentOnBehalfOfName"]] = phi_pq
   outMail[["subject"]] = subject
   outMail[["htmlbody"]] = msg_body
 
