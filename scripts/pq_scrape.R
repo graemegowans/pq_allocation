@@ -19,6 +19,16 @@ library(lubridate)
 library(glue)
 library(jsonlite)
 
+#************************************
+#define function####
+#************************************
+
+#get data from website
+get_web <- function(url_to_use) {
+  x <- as_tibble(fromJSON(txt = url(url_to_use), simplifyDataFrame = TRUE))
+  x <- clean_names(x)
+}
+
 #*******************************
 #read flagged/archive
 #*******************************
@@ -33,16 +43,12 @@ archive <- select(archive, unique_id)
 #************************************
 
 #get current year questions
-pq_urls <- paste0("https://data.parliament.scot/api/motionsquestionsanswersquestions?year=", year(now()))
-
-#get current PQs
-pqs <- as_tibble(fromJSON(txt = url(pq_urls), simplifyDataFrame = TRUE))
-pqs <- clean_names(pqs)
+pq_url <- paste0("https://data.parliament.scot/api/motionsquestionsanswersquestions?year=", year(now()))
+pqs <- get_web(pq_url)
 
 #get MSPs
 msp_url <- "https://data.parliament.scot/api/members/json"
-msp <- as_tibble(fromJSON(txt = url(msp_url), simplifyDataFrame = TRUE))
-msp <- clean_names(msp)
+msp <- get_web(msp_url)
 
 #tidy up
 msp <- msp %>%
@@ -54,8 +60,7 @@ msp <- msp %>%
 
 #get constituency
 constituency_url <- "https://data.parliament.scot/api/constituencies/json"
-constituency <- as_tibble(fromJSON(txt = url(constituency_url), simplifyDataFrame = TRUE))
-constituency <- clean_names(constituency)
+constituency <- get_web(constituency_url)
 
 constituency <- constituency %>%
                 rename(constituency_id = id, constituency_name = name) %>%           
@@ -63,8 +68,7 @@ constituency <- constituency %>%
 
 #get region
 region_url <- "https://data.parliament.scot/api/regions/json"
-region <- as_tibble(fromJSON(txt = url(region_url), simplifyDataFrame = TRUE))
-region <- clean_names(region)
+region <- get_web(region_url)
 
 region <- region %>%
           rename(region_name = name, region_id = id) %>% 
@@ -72,8 +76,7 @@ region <- region %>%
 
 #event ID
 event_subtypes_url <- "https://data.parliament.scot/api/motionsquestionsanswerseventsubtypes/json"
-event_subtypes <- as_tibble(fromJSON(txt = url(event_subtypes_url), simplifyDataFrame = TRUE))
-event_subtypes <- clean_names(event_subtypes)
+event_subtypes <- get_web(event_subtypes_url)
 
 #clean up
 event_subtypes <- event_subtypes %>%
@@ -81,10 +84,10 @@ event_subtypes <- event_subtypes %>%
                   filter(str_detect(event_sub_type, fixed("question", ignore_case=TRUE)))
 
 #merge into one data set
-df <- pqs %>% left_join(msp, by = "mspid") 
-df <- df %>% left_join(region, by = "region_id")
-df <- df %>% left_join(constituency, by = "constituency_id")
-df <- df %>% left_join(event_subtypes, by = "event_sub_type_id")
+df <- pqs %>% left_join(msp, by = "mspid") %>%
+                left_join(region, by = "region_id") %>% 
+                left_join(constituency, by = "constituency_id") %>% 
+                left_join(event_subtypes, by = "event_sub_type_id")
 
 #*******************************
 #remove those checked already
@@ -111,7 +114,8 @@ flag_strings <- tolower(
                 "neonatal", "maternal", "breast", "pancreatic", "wellbeing","chronic pain",
                 "sickness", "outbreak", "medical", "infection", "AIDS","neurological", "parkinson",
                 " flu ", "immunisation", "vaccination", "vaccine", "radiologist", "diabetes", "obstetrician", "neurologist",
-                "teenage pregnancy", "pregnancy", "care homes", "patient", "treating", "psychology"))
+                "teenage pregnancy", "pregnancy", "care homes", "patient", "treating", "psychology", "thyroid",
+                "blood", "palliative"))
 
 #these were taken from the topic list on HPS website
 hps_keywords <- tolower(

@@ -30,7 +30,7 @@ library(tidylog)
 #***************************************
 
 #format usually YYYY_MM_DD_new_pqs_allocated.csv
-pq_dated <- "2019_12_12"
+pq_dated <- "2019_12_17"
 
 #read allocated files from network
 pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
