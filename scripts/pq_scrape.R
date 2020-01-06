@@ -35,7 +35,7 @@ get_web <- function(url_to_use) {
 #this takes the archive already saved and gets IDs
 #takes it from network
 #this path won't work on desktop, but it runs through server
-archive <- readRDS(glue("/conf/linkage/output/IR2019_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))
+archive <- readRDS(glue("/conf/linkage/output/IR2020_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))
 archive <- select(archive, unique_id)
 
 #************************************
@@ -191,7 +191,7 @@ write_csv(new_pq,
           path = glue("pq_auto_emails/data/new_pq/{save_name}"))
   
 write_csv(new_pq, 
-          path = glue("/conf/linkage/output/IR2019_PQ/pq_allocation/to_be_allocated/{save_name}"))
+          path = glue("/conf/linkage/output/IR2020_PQ/pq_allocation/to_be_allocated/{save_name}"))
 }
 
 #*******************************
@@ -201,4 +201,4 @@ write_csv(new_pq,
 saveRDS(df, file = glue("pq_auto_emails/data/pq_archive_{year(now())}.RDS"))
 
 #save copy to drive
-saveRDS(df, file = glue("/conf/linkage/output/IR2019_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))
+saveRDS(df, file = glue("/conf/linkage/output/IR2020_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))

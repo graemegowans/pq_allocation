@@ -24,11 +24,11 @@ library(lubridate)
 #source("pq_auto_emails/scripts/pq_scrape.R")
 
 #from network
-source("/conf/linkage/output/IR2019_PQ/pq_allocation/scripts/pq_scrape.R")
+source("/conf/linkage/output/IR2020_PQ/pq_allocation/scripts/pq_scrape.R")
 
 #get email addresses
 #saved in new file so addresses aren't shared
-emails <- read_csv("/conf/linkage/output/IR2019_PQ/pq_allocation/email_addresses.csv")
+emails <- read_csv("/conf/linkage/output/IR2020_PQ/pq_allocation/email_addresses.csv")
 gmail_acct <- filter(emails, contact == "gmail_account")
 stats_gov <- filter(emails, contact == "stats_gov")
 
@@ -77,7 +77,7 @@ msg <- paste0("<h3>Flagged Questions</h3>",
 
 #authorize
 #gm_auth_configure(path = "credentials.json")
-  gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
+  gm_auth_configure(path = "/conf/linkage/output/IR2020_PQ/pq_allocation/credentials.json")
   gm_auth(email = gmail_acct$info)
   
   #generate email
@@ -111,7 +111,7 @@ if(dim(new_pq)[1] > 0){
   #generate intro text
   msg <- glue(
     "New PQs ({num_flagged} flagged, {num_not_flagged} not flagged) have been added at: ", 
-    "\\\\stats\\cl-out\\IR2019_PQ\\pq_allocation\\to_be_allocated\\{save_name}",
+    "\\\\stats\\cl-out\\IR2020_PQ\\pq_allocation\\to_be_allocated\\{save_name}",
     "<br><br>",
     "They need a topic area assigned. Options (in bold) are:",
     "<ul>",
@@ -142,14 +142,14 @@ if(dim(new_pq)[1] > 0){
     "You can also add any notes to be included - e.g. other questions that are referred to.",
     "<br><br>",
     "Once all are assigned, save the file to: ",
-    "\\\\stats\\cl-out\\IR2019_PQ\\pq_allocation\\allocated",
+    "\\\\stats\\cl-out\\IR2020_PQ\\pq_allocation\\allocated",
     "<br><br>",
     "Using the name format: <strong>YYYY_MM_DD_new_pqs_allocated.csv</strong>"
   )
   
   #authorize
   #gm_auth_configure(path = "credentials.json")
-  gm_auth_configure(path = "/conf/linkage/output/IR2019_PQ/pq_allocation/credentials.json")
+  gm_auth_configure(path = "/conf/linkage/output/IR2020_PQ/pq_allocation/credentials.json")
   gm_auth(email = gmail_acct$info)
   
   #generate email
