@@ -12,10 +12,10 @@
 #install packages####
 #***************************************
 #RDCOMClient won't install on linux server
-#install.packages("RDCOMClient", repos = "http://www.omegahat.net/R")
-#install.packages("tidyverse")
-#install.packages("glue")
-#install.packages("tidylog)
+install.packages("RDCOMClient", repos = "http://www.omegahat.net/R")
+install.packages("tidyverse")
+install.packages("glue")
+install.packages("tidylog")
 
 #***************************************
 #load packages####
@@ -30,10 +30,11 @@ library(tidylog)
 #***************************************
 
 #format usually YYYY_MM_DD_new_pqs_allocated.csv
-pq_dated <- "2019_12_17"
+pq_dated <- "2019_12_24"
 
-#read allocated files from network
-pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"))
+#read allocated files from network using
+pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"), 
+               col_types = "cTTTcccclccc")
 
 #***************************************
 #get email addresses####
