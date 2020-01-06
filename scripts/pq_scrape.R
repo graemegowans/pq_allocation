@@ -33,10 +33,19 @@ get_web <- function(url_to_use) {
 #read flagged/archive
 #*******************************
 #this takes the archive already saved and gets IDs
-#takes it from network
+#takes it from network if it exists
+#otherwise create to prevent errors
 #this path won't work on desktop, but it runs through server
-archive <- readRDS(glue("/conf/linkage/output/IR2020_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS"))
-archive <- select(archive, unique_id)
+
+archive_path <- glue("/conf/linkage/output/IR2020_PQ/pq_allocation/data/pq_archive_{year(now())}.RDS")
+
+if(file.exists(archive_path)) {
+  archive <- readRDS(archive_path)
+  archive <- select(archive, unique_id)
+} else {
+  archive <- NULL
+}
+
 
 #************************************
 #scrape PQ website####
@@ -92,6 +101,7 @@ df <- pqs %>% left_join(msp, by = "mspid") %>%
 #*******************************
 #remove those checked already
 #*******************************
+
 new_pq <- df %>% filter(!unique_id %in% archive$unique_id)
 
 #*******************************
