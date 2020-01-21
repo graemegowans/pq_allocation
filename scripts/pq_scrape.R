@@ -170,7 +170,7 @@ new_pq <- new_pq %>%
 
 #add blank column header for area
 #will remind users to add later
-new_pq$topic_area <- ""
+#new_pq$topic_area <- ""
 new_pq$action <- ""
 new_pq$notes <- ""
 
@@ -179,12 +179,13 @@ new_pq <- new_pq %>%
           mutate(item_text = str_squish(item_text))
 
 #*******************************
-#add suggested contact team
+#predict topic area?
 #*******************************
 
 #add code here to check for certain keywords
-
 #will still go to mailbox for review
+
+source("/conf/linkage/output/IR2020_PQ/pq_allocation/scripts/developing/pq_tfidf_classing.R")
 
 #*******************************
 #save log of new questions
