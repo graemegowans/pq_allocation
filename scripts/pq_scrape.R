@@ -125,7 +125,7 @@ flag_strings <- tolower(
                 "sickness", "outbreak", "medical", "infection", "AIDS","neurological", "parkinson",
                 " flu ", "immunisation", "vaccination", "vaccine", "radiologist", "diabetes", "obstetrician", "neurologist",
                 "teenage pregnancy", "pregnancy", "care homes", "patient", "treating", "psychology", "thyroid",
-                "blood", "palliative", "mesh", "a&e"))
+                "blood", "palliative", "mesh", "a&e", "opioid", "antidepressant"))
 
 #these were taken from the topic list on HPS website
 hps_keywords <- tolower(
