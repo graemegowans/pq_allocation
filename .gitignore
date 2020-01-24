@@ -4,8 +4,8 @@
 .Ruserdata
 *.csv
 allocated/
-data/
 to_be_allocated/
+data/
 credentials.json
 scripts/archived/
 scripts/developing/
