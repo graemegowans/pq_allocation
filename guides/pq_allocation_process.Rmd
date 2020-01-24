@@ -9,13 +9,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### getting new questions
 
-On Tuesdays/Thursdays, `pq_sched.R` runs from Graeme's login on the RStudio Server using `cronR`. This script:
+On Tuesdays/Thursdays, `pq_sched.R` runs on the RStudio Server using `cronR`. This script:
 
-*	runs at 8 am
+*	runs at 7 am
 * calls `pq_scrape.R` to
     +	download the PQs for this year from website
     +	check these against our archive of questions for new PQs
     +	check these new questions against a list of keywords to add a flag
+    + call `pq_tfidf_classing.R`to guess the topic area 
     +	save all the new questions as a csv file (with date) at: `pq_allocation\to_be_allocated\YYYY_MM_DD_new_pqs.csv`
     +	overwrites the archive of questions `pq_allocation\data`
 *	emails the statsgov mailbox to say there are new questions and links to the file
@@ -32,7 +33,7 @@ These scripts are saved at: `pq_allocation\scripts`
 
 The email has the codes for each area but they are:
 
-* **pop_health** - population health (inc. cancer, heart, stroke, births, sexual health, immunisation)
+* **pop_health** - population health (inc. cancer, births, sexual health, immunisation)
 * **quality_indicators** - inc. hospital admission/discharge patient data, beds, HSMR, 
 * **prescribing** - inc. prescriptions, medicines, pharmacy
 * **nes_wf** - NES workforce (inc. staff in post, vacancies, turnover, absences, staff types)
@@ -56,7 +57,7 @@ Then save this as `YYYY_MM_DD_new_pqs_allocated.csv` at: `pq_allocation\allocate
 
 ### emailing questions to teams
 
-To send emails, run `pq_email_contacts.R`. This can't be automated on the server as the email package only works on Windows - so this script must be run locally by someone with access to the cl-out area and the PHI pq mailbox. Good idea to open the project file (`pq_allocation.Rproj`) so that working directory is set. This script:
+To send emails, run `pq_email_contacts.R`. This can't be automated on the server as the email package only works on Windows - so this script must be run locally by someone with access to the cl-out area and the PHI-PQ mailbox. Good idea to open the project file (`pq_allocation.Rproj`) so that working directory is set. This script:
 
 *	loads allocated PQs from `pq_allocation\allocated`
 * loads contact details from `pq_allocation\contact_info.csv`
@@ -66,7 +67,7 @@ To send emails, run `pq_email_contacts.R`. This can't be automated on the server
 *	generate one email per area with the list of questions
 *	sends emails from PHI PQ mailbox
 
-It is good to send test emails to yourself to make sure that everything looks ok before sending to teams:
+You can send test emails to yourself to make sure that everything looks ok before sending to teams:
 
 ```{r eval = FALSE}
   #send to yourself
@@ -76,29 +77,7 @@ It is good to send test emails to yourself to make sure that everything looks ok
 
 ### compiling all allocated questions
 
-It might be useful to keep a running list of where we allocate questions, rather than having to search through emails. The script `pq_collate_allocated.R` takes all files in `pq_allocation\allocated`, removes those not assigned and saves as a master list: `all_allocated_pqs.csv`.
-
-You can see how many are assigned per area:
-
-```{r eval = FALSE}
-library(tidyverse)
-library(glue)
-
-#get data
-pq <- read_csv("path_to_pqs.csv")
-
-#number per area
-pq %>% 
-count(topic_area) %>% 
-mutate(topic_area = fct_reorder(topic_area, n, .desc = FALSE)) %>% 
-ggplot(aes(topic_area, n)) +
-  geom_col(color = "black", fill = "#e7298a") +
-  coord_flip() +
-  xlab("topic area") +
-  ylab("PQs assigned") +
-  ggtitle(glue("Number of PQ assigned per area at: {Sys.Date()}")) +
-  theme_bw()
-```
+It is useful to keep a running list of where we allocate questions, rather than having to search through emails. The script `pq_collate_allocated.R` takes all files in `pq_allocation\allocated`, removes those not assigned and saves as a master list: `all_allocated_pqs.csv`. This is also used for predicting the topic area.
 
 ###setting up cron jobs
 
@@ -115,12 +94,12 @@ cmd <- cronR::cron_rscript("/path/to/script.R",
                           log_append = FALSE)
 ```
 
-Generate cron job at defined schedule. This example would run at 8 am on Tuesdays and Thursdays:
+Generate cron job at defined schedule. This example would run at 7 am on Tuesdays and Thursdays:
 
 ```{r eval = FALSE}
 cronR::cron_add(cmd, 
                 frequency = "daily",
-                at = "08:00", 
+                at = "07:00", 
                 days_of_week = c(2, 4),
                 id = "name_of_job")
 ```
@@ -188,4 +167,4 @@ gm_auth_configure(path = "path/to/credentials.json")
 gm_auth()
 ```
 
-The first time, this will take you to the browser where you will allow the project access to your gmail. It will say it is an untrusted application, but that’s because it is the one you just made. Click *advanced* to proceed. Then include the code above in your script to authorize each time without having to go through the browser steps. This will work on the RStudio server, through the guest wifi but not through the NSS network (firewall issues). Running on the server seems to be the easiest way.
+The first time, this will take you to the browser where you will allow the project access to your gmail. It will say it is an untrusted application, but that’s because it is the one you just made. Click *advanced* to proceed. Then include the code above in your script to authorize each time without having to go through the browser steps. This will work on the RStudio server, but not through the NSS network (firewall issues). Running on the RStudio Server might be the easiest way.

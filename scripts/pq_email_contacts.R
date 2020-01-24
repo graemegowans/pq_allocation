@@ -12,10 +12,10 @@
 #install packages####
 #***************************************
 #RDCOMClient won't install on linux server
-install.packages("RDCOMClient", repos = "http://www.omegahat.net/R")
-install.packages("tidyverse")
-install.packages("glue")
-install.packages("tidylog")
+#install.packages("RDCOMClient", repos = "http://www.omegahat.net/R")
+#install.packages("tidyverse")
+#install.packages("glue")
+#install.packages("tidylog")
 
 #***************************************
 #load packages####
@@ -30,7 +30,7 @@ library(tidylog)
 #***************************************
 
 #format usually YYYY_MM_DD_new_pqs_allocated.csv
-pq_dated <- "2019_12_24"
+pq_dated <- "2020_01_23"
 
 #read allocated files from network using
 pq <- read_csv(glue("allocated/{pq_dated}_new_pqs_allocated.csv"), 
@@ -115,20 +115,30 @@ pq <- pq %>%
              topic_area = str_replace_all(topic_area, pattern = "\\?",""),
              topic_area = str_squish(topic_area))
 
+
+#***************************************
+#update running list of questions####
+#***************************************
+
+#keeps list of all allocated questions
+all_pq <- read_csv("allocated/all_allocated_pqs.csv")
+all_pq <- bind_rows(all_pq, pq)
+write_csv(all_pq, "allocated/all_allocated_pqs.csv")
+
 #***************************************
 #optional! clean up of encoding####
 #***************************************
 
 #sometimes there are encoding problems between server/laptops
 #server encodes as UTF-8, windows uses Latin1
-#usually only a problem with £ symbol
+#e.g. sometimes a problem with £ symbol
 
 #to check encoding for each question:
 pq %>% mutate(encd = Encoding(item_text)) %>% select(event_id,encd, item_text)
 
 #you can run iconv() to convert, but sometimes will make an NA
-#but this will be reported by tidylog
-pq <- pq %>% mutate(item_text = iconv(item_text, to = "Latin1", from = "UTF-8"))
+#this will be reported by tidylog
+#pq <- pq %>% mutate(item_text = iconv(item_text, to = "Latin1", from = "UTF-8"))
 
 #you can also delete weird characters in the csv file directly
 #unicode characters present in R (e.g. <U+00A3>) are encoded ok in emails

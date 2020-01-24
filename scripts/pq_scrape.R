@@ -46,7 +46,6 @@ if(file.exists(archive_path)) {
   archive <- NULL
 }
 
-
 #************************************
 #scrape PQ website####
 #************************************
@@ -110,35 +109,50 @@ new_pq <- df %>% filter(!unique_id %in% archive$unique_id)
 
 #keywords to check for
 flag_strings <- tolower(
-                c("nhs", "health", "hospital", "infirmary", "disease", "condition ", "conditions", 
-                "procedure", "surgery", "surgical", "operations", "operation", "diagnos", 
-                "inpatient", "outpatient", "nurse ", "nurses", "nursing", "dentist", "doctor", 
-                "heart", " liver", "kidney", "renal", "ophthalmic", "bowel", "alcohol", "drug", "prescribed", "prescription",
-                "osteo", "ovarian", "treated", "beds", "isd", "smoking", "cancer", "cervical", "medicine", "treatment", 
-                "workforce", "suicide", "pharmacy", "pharmacies", "pharmacist", "therapy", "deaths",
-                "surgeon", "optometrist", "therapist", "dental", "emergency","general practice", "gp",
-                "community care", "maternity", "birth", "midwife", "midwives", "eye", 
-                "mental health", "public health", "public health scotland",
-                "quality indicators", "quality measurement framework", "healthcare audits",
-                "sexual health", "stroke", "waiting times", "dying", "babies", "born", "pregnancies",
-                "neonatal", "maternal", "breast", "pancreatic", "wellbeing","chronic pain",
-                "sickness", "outbreak", "medical", "infection", "AIDS","neurological", "parkinson",
-                " flu ", "immunisation", "vaccination", "vaccine", "radiologist", "diabetes", "obstetrician", "neurologist",
-                "teenage pregnancy", "pregnancy", "care homes", "patient", "treating", "psychology", "thyroid",
-                "blood", "palliative", "mesh", "a&e", "opioid", "antidepressant"))
+                c("nhs", "health", "hospital", "infirmary", "disease",
+                  "condition ", "conditions", "procedure", "surgery",
+                  "surgical", "operations", "operation", "diagnos", 
+                  "inpatient", "outpatient", "nurse ", "nurses", "nursing",
+                  "dentist", "doctor", "heart", " liver", "kidney",
+                  "renal", "ophthalmic", "bowel", "alcohol", "drug",
+                  "prescribed", "prescription","osteo", "ovarian",
+                  "treated", "beds", "isd", "smoking", "cancer",
+                  "cervical", "medicine", "treatment", "workforce",
+                  "suicide", "pharmacy", "pharmacies", "pharmacist",
+                  "therapy", "deaths", "surgeon", "optometrist",
+                  "therapist", "dental", "emergency","general practice",
+                  "gp", "community care", "maternity", "birth", "midwife",
+                  "midwives", "eye", "mental health", "public health",
+                  "public health scotland", "quality indicators",
+                  "quality measurement framework", "healthcare audits",
+                  "sexual health", "stroke", "waiting times", "dying",
+                  "babies", "born", "pregnancies", "neonatal", "maternal",
+                  "breast", "pancreatic", "wellbeing","chronic pain",
+                  "sickness", "outbreak", "medical", "infection",
+                  "AIDS","neurological", "parkinson", " flu ",
+                  "immunisation", "vaccination", "vaccine", "radiologist",
+                  "diabetes", "obstetrician", "neurologist", "teenage pregnancy",
+                  "pregnancy", "care homes", "patient", "treating",
+                  "psychology", "thyroid", "blood", "palliative",
+                  "mesh", "a&e", "opioid", "antidepressant", "virus"))
 
 #these were taken from the topic list on HPS website
 hps_keywords <- tolower(
-                c("antimicrobial", "bacteraemia", "Botulism", "Brucella", "Campylobacter", "Chickenpox",
-                  "Chlamydia", "Clostridioides difficile", "Creutzfeldt-Jakob disease", "CJD",
-                  "Cryptosporidium", "Cyclospora", "Diphtheria", "Escherichia coli", "E. coli", "Giardia",
-                  "Gonorrhoea", "Haemophilus influenzae", "Healthcare Associated Infection",
-                  "Hepatitis", "HIV", "Human papillomavirus", "HPV", "Influenza", "Legionella",
-                  "Leptospirosis", "Listeria", "Lyme Disease", "Malaria", "Measles", "Meningococcal", "coronavirus",
-                  "Mumps", "Norovirus", "Pneumococcal", "Polio", "Rabies", "Rotavirus", "Rubella", "Salmonella",
-                  "Sexually transmitted infection", "Shigella", "Shingles", "Staphylococcus aureus", "Streptococcal",
-                  "Syphilis", "Tetanus", "Toxoplasma", "Tuberculosis", "Whooping cough", "Yellow fever", "Yersinia",
-                  "Zika", "Zoonoses"))
+                c("antimicrobial", "bacteraemia", "Botulism", "Brucella",
+                  "Campylobacter", "Chickenpox", "Chlamydia",
+                  "Clostridioides difficile", "Creutzfeldt-Jakob disease",
+                  "CJD", "Cryptosporidium", "Cyclospora", "Diphtheria",
+                  "Escherichia coli", "E. coli", "Giardia", "Gonorrhoea",
+                  "Haemophilus influenzae", "Healthcare Associated Infection",
+                  "Hepatitis", "HIV", "Human papillomavirus", "HPV", "Influenza",
+                  "Legionella", "Leptospirosis", "Listeria", "Lyme Disease",
+                  "Malaria", "Measles", "Meningococcal", "coronavirus",
+                  "Mumps", "Norovirus", "Pneumococcal", "Polio", "Rabies",
+                  "Rotavirus", "Rubella", "Salmonella",
+                  "Sexually transmitted infection", "Shigella", "Shingles",
+                  "Staphylococcus aureus", "Streptococcal", "Syphilis", "Tetanus",
+                  "Toxoplasma", "Tuberculosis", "Whooping cough",
+                  "Yellow fever", "Yersinia", "Zika", "Zoonoses"))
 
 flag_strings <- c(flag_strings, hps_keywords)
 
@@ -159,7 +173,8 @@ new_pq <- new_pq %>%
 #generate region to display based on either region/constituency
 #select columns to keep
 new_pq <- new_pq %>%
-          mutate(flag = str_detect(tolower(item_text), paste(flag_strings, collapse = "|"))) %>% 
+          mutate(flag = str_detect(tolower(item_text), 
+                                   paste(flag_strings, collapse = "|"))) %>% 
           arrange(desc(flag)) %>%
           mutate(mp_area = if_else(is.na(region_name), 
                            as.character(constituency_name),
@@ -174,18 +189,16 @@ new_pq <- new_pq %>%
 new_pq$action <- ""
 new_pq$notes <- ""
 
-#get rid of whitespace - stops some encoding issues
+#get rid of whitespace
 new_pq <- new_pq %>% 
           mutate(item_text = str_squish(item_text))
 
 #*******************************
-#predict topic area?
+#predict topic area
 #*******************************
 
-#add code here to check for certain keywords
 #will still go to mailbox for review
-
-source("/conf/linkage/output/IR2020_PQ/pq_allocation/scripts/developing/pq_tfidf_classing.R")
+source("/conf/linkage/output/IR2020_PQ/pq_allocation/scripts/pq_tfidf_classing.R")
 
 #*******************************
 #save log of new questions
